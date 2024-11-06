@@ -26,6 +26,7 @@
       "@guards/*": ["src/guards/*"],
       "@decorators/*": ["src/decorators/*"],
       "@commands/*": ["src/commands/*"]
-    }
+    },
+    "typeRoots": ["./src/types", "./node_modules/@types"]
   }
 }

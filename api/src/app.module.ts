@@ -9,6 +9,7 @@ import { RedisModule } from '@liaoliaots/nestjs-redis';
 import modules from '@modules/index';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtAccessTokenGuard } from '@modules/auth/guards/jwt-access-token.guard';
+import { LoggerModule } from 'nestjs-pino';
 
 @Module({
   imports: [
@@ -25,6 +26,18 @@ import { JwtAccessTokenGuard } from '@modules/auth/guards/jwt-access-token.guard
       }),
       isGlobal: true,
       load: [configs],
+    }),
+    LoggerModule.forRoot({
+      pinoHttp: {
+        level: 'info',
+        transport: {
+          target: 'pino-pretty',
+          options: {
+            colorize: true,
+            singleLine: true,
+          },
+        },
+      },
     }),
     CustomPrismaModule.forRootAsync({
       isGlobal: true,

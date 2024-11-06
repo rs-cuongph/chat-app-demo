@@ -1,17 +1,20 @@
 /* eslint-disable no-console */
 import { PrismaClient } from '@prisma/client';
+import * as bcrypt from 'bcryptjs';
 
+const SALT_ROUND = 11;
 const prisma = new PrismaClient();
 async function main() {
   console.log(`Start seeding ...`);
+  console.log(`==============> SEEDING User <===============`);
 
-  console.log(`==============> SEEDING ORGANIZATION <===============`);
-  await prisma.organization.createManyAndReturn({
+  const password = await bcrypt.hash('admin123', SALT_ROUND);
+  await prisma.user.createManyAndReturn({
     data: [
       {
-        short_name: 'GMO DN',
-        name: 'GMO Zcom Runsystem (Đà Nẵng Branch)',
-        description: '',
+        email: 'admin@gmail.com',
+        name: 'ADMIN',
+        password,
       },
     ],
   });

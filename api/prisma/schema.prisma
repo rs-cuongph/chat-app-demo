@@ -15,33 +15,69 @@ datasource db {
 }
 
 model User {
-  id        String    @id @default(cuid())
+  id        String        @id @default(cuid())
+  email     String        @unique
   name      String
-  email     String    @unique
-  avatar    String?
-  groups    Group[]   @relation("GroupMember")
+  password  String
+  role      Role_T        @default(MEMBER)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+  groups    GroupMember[]
   messages  Message[]
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  Group     Group[]
 }
 
 model Group {
-  id        String    @id @default(cuid())
-  name      String
-  avatar    String?
-  members   User[]    @relation("GroupMember")
-  messages  Message[]
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  id          String        @id @default(cuid())
+  name        String
+  avatar      String?
+  createdById String
+  createdBy   User          @relation(fields: [createdById], references: [id])
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  members     GroupMember[]
+  messages    Message[]
 }
 
 model Message {
-  id        String   @id @default(cuid())
-  content   String
-  sender    User     @relation(fields: [senderId], references: [id])
-  senderId  String
-  group     Group    @relation(fields: [groupId], references: [id])
-  groupId   String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id          Int          @id @default(autoincrement())
+  groupId     String
+  group       Group        @relation(fields: [groupId], references: [id])
+  senderId    String
+  sender      User         @relation(fields: [senderId], references: [id])
+  content     String?
+  sentAt      DateTime     @default(now())
+  type        MessageType  @default(text)
+  attachments Attachment[]
+}
+
+model GroupMember {
+  group    Group    @relation(fields: [groupId], references: [id])
+  groupId  String
+  user     User     @relation(fields: [userId], references: [id])
+  userId   String
+  joinedAt DateTime @default(now())
+  role     Role_T   @default(MEMBER)
+
+  @@id([groupId, userId])
+}
+
+enum MessageType {
+  text
+  image
+  file
+}
+
+model Attachment {
+  id        Int     @id @default(autoincrement())
+  message   Message @relation(fields: [messageId], references: [id])
+  messageId Int
+  filename  String
+  filepath  String
+  filesize  Int
+}
+
+enum Role_T {
+  ADMIN
+  MEMBER
 }

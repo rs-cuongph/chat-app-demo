@@ -6,35 +6,25 @@ import { Request } from 'express';
 import { SignInDTO } from '../dto/sign-in.dto';
 import { plainToClass } from 'class-transformer';
 import { validate as classValidate } from 'class-validator';
-import { I18nService } from 'nestjs-i18n';
 
 @Injectable()
 export class LocalStrategy extends PassportStrategy(Strategy) {
-  constructor(
-    private readonly authService: AuthService,
-    private i18n: I18nService,
-  ) {
+  constructor(private readonly authService: AuthService) {
     super({
       usernameField: 'email',
-      passwordField: 'password',
       passReqToCallback: true,
     });
   }
 
   async validate(req: Request) {
     const body = plainToClass(SignInDTO, req.body);
+    console.log(body);
     const errors = await classValidate(body);
     if (errors.length) {
-      throw new BadRequestException(
-        this.i18n.t('message.wrong_credential_format'),
-      );
+      throw new BadRequestException('Your username or password is incorrect.');
     } else {
-      const { organization_id, email, password } = req.body;
-      const user = await this.authService.getAuthenticatedUser(
-        email,
-        password,
-        organization_id,
-      );
+      const { email, password } = req.body;
+      const user = await this.authService.getAuthenticatedUser(email, password);
 
       return user;
     }
